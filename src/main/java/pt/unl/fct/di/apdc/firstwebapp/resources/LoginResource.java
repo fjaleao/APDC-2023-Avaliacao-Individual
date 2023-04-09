@@ -15,7 +15,7 @@ import javax.ws.rs.core.Response.Status;
 import com.google.gson.Gson;
 
 import pt.unl.fct.di.apdc.firstwebapp.util.AuthToken;
-import pt.unl.fct.di.apdc.firstwebapp.util.LoginData;
+import pt.unl.fct.di.apdc.firstwebapp.util.UserData;
 
 @Path("/login")
 @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -33,7 +33,7 @@ public class LoginResource {
 	@POST
 	@Path("/v1")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response loginUserV1(LoginData data) {
+	public Response loginUserV1(UserData data) {
 		
 		LOG.fine("Attempt to login user:" + data.username);
 		

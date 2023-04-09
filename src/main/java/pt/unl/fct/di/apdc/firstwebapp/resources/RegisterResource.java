@@ -19,7 +19,7 @@ import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.Transaction;
 // import com.google.gson.Gson;
 
-import pt.unl.fct.di.apdc.firstwebapp.util.LoginData;
+import pt.unl.fct.di.apdc.firstwebapp.util.UserData;
 
 
 @Path("/register")
@@ -37,7 +37,7 @@ public class RegisterResource {
     @POST
     @Path("/v1")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response registerUserV1(LoginData data) {
+    public Response registerUserV1(UserData data) {
 
         LOG.fine("Registering a new user: " + data.username);
 
@@ -60,7 +60,7 @@ public class RegisterResource {
     @POST
     @Path("/v2")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response registerUserV2(LoginData data) {
+    public Response registerUserV2(UserData data) {
 
         LOG.fine("Registering a new user: " + data.username);
 
