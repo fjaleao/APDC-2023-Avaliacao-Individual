@@ -34,11 +34,13 @@ public class LoginResource {
 	@Path("/v1")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response loginUserV1(UserData data) {
+
+		String username = data.getUsername();
 		
-		LOG.fine("Attempt to login user:" + data.username);
+		LOG.fine("Attempt to login user:" + data.getUsername());
 		
-		if(data.username.equals("jleitao") && data.password.equals("password")) {
-			AuthToken at = new AuthToken(data.username);
+		if(data.getUsername().equals("jleitao") && data.getPassword().equals("password")) {
+			AuthToken at = new AuthToken(username);
 			return Response.ok(g.toJson(at)).build();			
 		}
 		

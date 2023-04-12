@@ -31,10 +31,7 @@ public class ComputationResource {
 	@Produces(MediaType.TEXT_HTML)
 	public Response hello() throws IOException {
 		LOG.fine("Saying hello!!");
-		return Response.ok().entity(
-			"<form><label for=\"username\">User Name:</label><br><input type=\"text\" id=\"username\" name=\"username\"><br><label for=\"password\">Password:</label><br><input type=\"password\" id=\"password\" name=\"password\"><br></form>")
-			.build();
-		// return Response.ok().entity("<h1>Hello, Human!</h1>").build();
+		return Response.ok().entity("<h1>Hello, Human!</h1>").build();
 		// throw new IOException("Oops");
 	}
 	

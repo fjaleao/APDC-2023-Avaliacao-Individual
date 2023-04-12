@@ -1,0 +1,75 @@
+In HTML, you can use the XMLHttpRequest object to send a JSON object through AJAX. Here's an example:
+
+<!DOCTYPE html>
+<html>
+<head>
+	<title>AJAX JSON Example</title>
+	<script>
+		function sendJSON() {
+			var xhr = new XMLHttpRequest();
+			var url = getURL() + "/{path}"
+			var data = JSON.stringify({
+				name: "John Doe",
+				age: 30,
+				occupation: "Software Engineer"
+			});
+
+			xhr.open("POST", url, true);
+			xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+			xhr.onreadystatechange = function () {
+				if (xhr.readyState === 4 && xhr.status === 200) {
+					var response = JSON.parse(xhr.responseText);
+					// handle the response from the server
+				}
+			};
+
+			xhr.send(data);
+		}
+
+		function getURL() {
+			return window.location.protocol + "//" + window.location.host
+		}
+	</script>
+</head>
+<body>
+	<button onclick="sendJSON()">Send JSON</button>
+</body>
+</html>
+
+In this example, we define a function sendJSON() that creates an XMLHttpRequest object and sets the necessary parameters to send a JSON object through AJAX. The data variable contains the JSON object we want to send, which is serialized using the JSON.stringify() method.
+
+We then set the Content-Type header to application/json;charset=UTF-8 to indicate that we're sending JSON data. We also define an onreadystatechange callback that is called when the server responds to our request. In this callback, we check that the readyState is 4 (meaning the request is complete) and the status is 200 (meaning the request was successful). We then parse the response from the server using JSON.parse() and handle it appropriately.
+
+Finally, we add a button to the HTML page that calls the sendJSON() function when clicked.
+
+
+-------------------------------------------------
+
+
+<!DOCTYPE html>
+<html>
+<body>
+
+<h2>List all courses (JavaScript version)</h2>
+
+<button type="button" onclick="loadDoc()">List all courses</button>
+<hr>
+<div id="temp">
+    <a>The complete course list will appear here</a>
+<hr>
+</div>
+
+<script>
+    function loadDoc() {    
+        const xhttp = new XMLHttpRequest();
+        xhttp.onload = function() {
+            document.getElementById("temp").innerHTML = this.responseText;
+        }
+        xhttp.open("GET", "http://localhost:55719/cgi-bin/listAllCourses.py", true);
+        xhttp.send();
+        }
+</script>
+
+</body>
+</html>
