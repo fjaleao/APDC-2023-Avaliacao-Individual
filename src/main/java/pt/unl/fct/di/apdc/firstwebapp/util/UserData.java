@@ -15,8 +15,8 @@ public class UserData {
 
 	public UserData(String username, String password, String email) {
 		this.username = username;
-		this.password = password;
 		this.email = email;
+		this.password = password;
 	}
 
 	public boolean isValid() {
