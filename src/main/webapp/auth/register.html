@@ -8,39 +8,48 @@
     </head>
 
     <body>
-        <h1>Welcome to my app!</h1>
 
-        <form id>
-            <label for="username">Name:</label>
-            <input type="text" id="username" name="username"><br><br>
+      <div style="text-align: center; background-color: rgba(68, 108, 181, 0.005);">
 
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email"><br><br>
+        <h1>Register</h1>
 
-            <label for="password">Password:</label>
+        <form id="registerForm">
+            
+            <!-- !add more fields -->
+            <input type="text" id="username" name="username" placeholder="User Name" required><br><br>
+
+            <input type="email" id="email" name="email" placeholder="Email" required><br><br>
+
             <div style="position: relative;">
-              <input type="password" id="password" name="password">
+              <input type="password" id="password" name="password" placeholder="Password" required>
               <button type="button" onclick="togglePasswordVisibility('password')">Show</button>
             </div>
+
+            <br>
+
+            <div style="position: relative;">
+              <input type="password" id="password_verify" name="password_verify" placeholder="Verify Password" required>
+              <button type="button" onclick="togglePasswordVisibility('password_verify')">Show</button>
+            </div>
+
+
             <div id="password-validation" style="display: none; color: red;">
               Password must be at least 8 characters long
             </div>
 
-            <label for="password_verify">Verify Password:</label>
-            <div style="position: relative;">
-              <input type="password" id="password_verify" name="password_verify">
-              <button type="button" onclick="togglePasswordVisibility('password_verify')">Show</button>
-            </div>
             <div id="password-confirmation" style="display: none; color: red;">
               Passwords do not match!
             </div>
 
-            <div id="input-validation" style="display: none; color: red;">
-              Invalid Input!
+            <div id="email-validation" style="display: none; color: red;">
+              Invalid Email format!
             </div>
 
             <br><br>
-            <button type="submit" onclick="submitFormFetch(event)">Submit</button>
-          </form>
+            <button type="submit" onclick="submitRegisterFormAJAX(event)">Submit</button>
+        </form>
+
+      </div>
+
     </body>
 </html>

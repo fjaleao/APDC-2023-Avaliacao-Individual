@@ -1,6 +1,6 @@
 package pt.unl.fct.di.apdc.firstwebapp.util;
 
-public class UserData {
+public class RegisterData {
 	
 	private String username;
 	private String password;
@@ -9,11 +9,11 @@ public class UserData {
 
 	private AuthToken token;
 	
-	public UserData() {
+	public RegisterData() {
 		
 	}
 
-	public UserData(String username, String password, String email) {
+	public RegisterData(String username, String password, String email) {
 		this.username = username;
 		this.email = email;
 		this.password = password;

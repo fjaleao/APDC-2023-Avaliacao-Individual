@@ -20,7 +20,7 @@ import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.Transaction;
 // import com.google.gson.Gson;
 
-import pt.unl.fct.di.apdc.firstwebapp.util.UserData;
+import pt.unl.fct.di.apdc.firstwebapp.util.RegisterData;
 
 
 @Path("/register")
@@ -37,9 +37,9 @@ public class RegisterResource {
 
 
     @POST
-    // @Path("/v1")
+    @Path("/v1")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response registerUserV1(UserData data) {
+    public Response registerUserV1(RegisterData data) {
 
         String username = data.getUsername();
 
@@ -62,9 +62,10 @@ public class RegisterResource {
     }
 
     @POST
-    @Path("/v2")
+    @Path("/")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response registerUserV2(UserData data) {
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response registerUserV2(RegisterData data) {
 
         String username = data.getUsername();
 

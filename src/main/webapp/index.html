@@ -1,27 +1,31 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
-    <meta http-equiv="content-type" content="application/xhtml+xml, charset=UTF-8, width=device-width" name="viewport" initial-scale="1" />
+    <meta charset="utf-8">
+    <meta http-equiv="content-type" content="application/xhtml+xml, width=device-width" name="viewport" initial-scale="1" />
     <title>My First Web App</title>
   </head>
 
   <body>
-    <h1>Welcome to my simple web application!</h1>
+    <div style="display: flex; justify-content: center; align-items: center;">
+      <h1>Welcome to my simple web application!</h1>
 
-    <table>
-      <tr>
-        <td colspan="2" style="font-weight:bold;">Available Services:</td>        
-      </tr>
-      <tr>
-        <td><a href='/rest/utils/hello'>Say Hello!</a></td><td>(greetings)</td>
-      </tr>
-      <tr>
-        <td><a href='/rest/utils/time'>What time is it?</a></td><td>(see server time)</td>
-      </tr>
-    </table>
-    <a href="/auth/register.html"><button>Register</button></a>
+      <table>
+        <tr>
+          <td colspan="2" style="font-weight:bold;">Available Services:</td>        
+        </tr>
+        <tr>
+          <td><a href='/rest/utils/hello'>Say Hello!</a></td><td>(greetings)</td>
+        </tr>
+        <tr>
+          <td><a href='/rest/utils/time'>What time is it?</a></td><td>(see server time)</td>
+        </tr>
+      </table>
+      <a href="/auth/register.html"><button>Register</button></a>
+      <a href="/auth/login.html"><button>Login</button></a>
+    </div>
   </body>
-  <footer>
+  <footer style="align-content: center;">
   	Copyright: FCT NOVA 2023
   </footer>
 </html>
