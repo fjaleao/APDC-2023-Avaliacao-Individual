@@ -21,10 +21,10 @@ public class RegisterData {
 	public static final String NIF = "user_nif";
 
 	
-	private String id;
+	private String username;
 	private String name;
-	private String password;
 	private String email;
+	private String password;
 
 	private boolean visible;
 	private String mobilePhoneNumber;
@@ -41,13 +41,13 @@ public class RegisterData {
 		
 	}
 
-	public RegisterData(String id, String name, String password, String email, boolean visible, String mobilePhoneNumber,
+	public RegisterData(String username, String name, String email, String password, boolean visible, String mobilePhoneNumber,
 			String phoneNumber, String occupation, String workAddress, String address, String secondAddress,
 			String postCode, String nif) {
-		this.id = id;
+		this.username = username;
 		this.name = name;
-		this.password = password;
 		this.email = email;
+		this.password = password;
 		this.visible = visible;
 		this.mobilePhoneNumber = mobilePhoneNumber;
 		this.phoneNumber = phoneNumber;
@@ -60,14 +60,14 @@ public class RegisterData {
 	}
 
 	public boolean isValid() {
-		return !(this.id == null || this.password == null || this.email == null);
+		return !(this.username == null || this.password == null || this.email == null);
 	}
 
 	/**
 	 * @return the username
 	 */
-	public String getId() {
-		return id;
+	public String getUsername() {
+		return username;
 	}
 
 	/**

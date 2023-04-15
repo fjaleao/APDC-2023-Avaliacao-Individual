@@ -37,7 +37,7 @@ public class LoginResource {
 	private final Gson g = new Gson();
 
 	private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
-	private final KeyFactory userKeyFactory = datastore.newKeyFactory();
+	private final KeyFactory userKeyFactory = datastore.newKeyFactory().setKind("User");
 	
 	public LoginResource() {}
 

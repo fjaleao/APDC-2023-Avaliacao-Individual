@@ -39,7 +39,7 @@ public class RegisterResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response registerUser(RegisterData data) {
 
-        String username = data.getId();
+        String username = data.getUsername();
 
         LOG.fine("Registering a new user: " + username);
 
