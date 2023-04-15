@@ -18,7 +18,7 @@ public enum UserType {
      * > Modify GS, GBO or USER users` <b>attributes</b>, except their {@code username};
      * 
     */
-    SU,
+    SU("SU"),
     
     /**
      * <pre>
@@ -32,8 +32,21 @@ public enum UserType {
      * 
      * </pre>
     */
-    GS,
-    GA,
-    GBO,
-    USER;
+    GS("GS"),
+    GA("GA"),
+    GBO("GBO"),
+    USER("USER");
+
+    public final String type;
+
+    private UserType(String type) {
+        this.type = type;
+    }
+
+    public static UserType toType(String type) {
+        for (UserType t : UserType.values())
+            if (t.type.equals(type))
+                return t;
+        return null;
+    }
 }

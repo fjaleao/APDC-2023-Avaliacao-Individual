@@ -3,7 +3,7 @@ package pt.unl.fct.di.apdc.firstwebapp.resources;
 import java.util.logging.Logger;
 
 import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
@@ -18,9 +18,9 @@ import com.google.cloud.datastore.DatastoreOptions;
 import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.Transaction;
-// import com.google.gson.Gson;
 
 import pt.unl.fct.di.apdc.firstwebapp.util.RegisterData;
+import pt.unl.fct.di.apdc.firstwebapp.util.UserType;
 
 
 @Path("/register")
@@ -33,41 +33,13 @@ public class RegisterResource {
 
     private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-    // private final Gson g = new Gson();
-
-
-    @POST
-    @Path("/v1")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response registerUserV1(RegisterData data) {
-
-        String username = data.getUsername();
-
-        LOG.fine("Registering a new user: " + username);
-
-        if (!data.isValid())
-            return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter").build();
-
-        Key userKey = datastore.newKeyFactory().setKind("User").newKey(username);
-
-        Entity user = Entity.newBuilder(userKey)
-                .set("user_pwd", DigestUtils.sha512Hex(data.getPassword()))
-                .set("user_creation_time", Timestamp.now())
-                .build();
-
-        datastore.put(user);
-        LOG.info(String.format("User %s registered!", username));
-        
-        return Response.ok("{}").build();
-    }
-
-    @POST
+    @PUT
     @Path("/")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public Response registerUserV2(RegisterData data) {
+    public Response registerUser(RegisterData data) {
 
-        String username = data.getUsername();
+        String username = data.getId();
 
         LOG.fine("Registering a new user: " + username);
 
@@ -83,10 +55,22 @@ public class RegisterResource {
                 return Response.status(Status.BAD_REQUEST).entity("User already exists.").build();
             } else {
                 user = Entity.newBuilder(userKey)
-                        .set("user_name", username)
-                        .set("user_pwd", DigestUtils.sha512Hex(data.getPassword()))
-                        .set("user_email", data.getEmail())
-                        .set("user_creation_time", Timestamp.now())
+                        .set(RegisterData.USERNAME, username)
+                        .set(RegisterData.NAME, data.getName())
+                        .set(RegisterData.EMAIL, data.getEmail())
+                        .set(RegisterData.PASSWORD, DigestUtils.sha512Hex(data.getPassword()))
+                        .set(RegisterData.CREATION_TIME, Timestamp.now())
+                        .set(RegisterData.TYPE, UserType.USER.type)
+                        .set(RegisterData.STATE, false)
+                        .set(RegisterData.VISIBILITY, data.isVisible())
+                        .set(RegisterData.MOBILE, data.getMobilePhoneNumber())
+                        .set(RegisterData.PHONE, data.getPhoneNumber())
+                        .set(RegisterData.OCCUPATION, data.getOccupation())
+                        .set(RegisterData.WORK_ADDRESS, data.getWorkAddress())
+                        .set(RegisterData.ADDRESS, data.getAddress())
+                        .set(RegisterData.SECOND_ADDRESS, data.getSecondAddress())
+                        .set(RegisterData.POST_CODE, data.getPostCode())
+                        .set(RegisterData.NIF, data.getNif())
                         .build();
                 txn.add(user);
                 LOG.info(String.format("User %s registered!", username));
@@ -94,9 +78,15 @@ public class RegisterResource {
                 return Response.ok("{}").build();
             }
 
+        } catch (Exception e) {
+			txn.rollback();
+			LOG.severe(e.getMessage());
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+
         } finally {
             if (txn.isActive())
                 txn.rollback();
+                
         }
     }
 

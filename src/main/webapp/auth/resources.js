@@ -15,6 +15,10 @@ function togglePasswordVisibility(passwordId) {
   }
 }
 
+function redirectTo(path) {
+  window.location.pathname = path;
+}
+
 function redirectToLogin() {
   window.location.pathname = 'auth/login.html';
 }
@@ -35,6 +39,7 @@ function submitRegisterFormAJAX(event) {
 
   // Get form values
   const username = formData.get('username');
+  const name = formData.get('name');
   const email = formData.get('email');
   const password = formData.get('password');
   const passwordValidation = document.getElementById('password-validation');
@@ -49,7 +54,7 @@ function submitRegisterFormAJAX(event) {
   } else
     passwordValidation.style.display = 'none';
   
-  // Validate mandatory inputs
+  // Verify email format
   if (!isEmailValid(email)) {
     emailValidation.style.display = 'block';
     return;
@@ -68,6 +73,7 @@ function submitRegisterFormAJAX(event) {
   // Create JSON object
   const json = {
     username : username,
+    name : name,
     email : email,
     password : password
   };
@@ -108,6 +114,7 @@ function submitRegisterFormFetch(event) {
 
   // Get form values
   const username = formData.get('username');
+  const name = formData.get('name');
   const email = formData.get('email');
   const password = formData.get('password');
   const passwordValidation = document.getElementById('password-validation');
@@ -141,6 +148,7 @@ function submitRegisterFormFetch(event) {
   // Create JSON object
   const json = {
     username : username,
+    name : name,
     email : email,
     password : password
   };
@@ -215,6 +223,8 @@ function submitLoginFormAJAX(event) {
     console.error('Error submitting form:', xhr.statusText);
   };
   xhr.send(JSON.stringify(json));
+
+  redirectToLogin()
 
 }
 
