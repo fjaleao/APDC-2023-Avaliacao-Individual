@@ -5,7 +5,8 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -17,18 +18,19 @@ import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
 import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.Key;
-import com.google.cloud.datastore.KeyFactory;
 import com.google.cloud.datastore.Query;
 import com.google.cloud.datastore.QueryResults;
+import com.google.cloud.datastore.StructuredQuery.CompositeFilter;
 import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 import com.google.cloud.datastore.Transaction;
 import com.google.gson.Gson;
 
 import pt.unl.fct.di.apdc.firstwebapp.util.AttributeChangeData;
-import pt.unl.fct.di.apdc.firstwebapp.util.AuthToken;
+import pt.unl.fct.di.apdc.firstwebapp.util.BaseQueryResultData;
 import pt.unl.fct.di.apdc.firstwebapp.util.CompleteQueryResultData;
 import pt.unl.fct.di.apdc.firstwebapp.util.RegisterData;
 import pt.unl.fct.di.apdc.firstwebapp.util.RoleChangeData;
+import pt.unl.fct.di.apdc.firstwebapp.util.TokenData;
 import pt.unl.fct.di.apdc.firstwebapp.util.UserData;
 import pt.unl.fct.di.apdc.firstwebapp.util.UserType;
 
@@ -45,8 +47,6 @@ public class ManagementResource {
 	private final Gson g = new Gson();
 
 	private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
-	private final KeyFactory userKeyFactory = datastore.newKeyFactory().setKind("User");
-    private final KeyFactory tokenKeyFactory = datastore.newKeyFactory().setKind("Token");
 	
 	public ManagementResource() {}
 
@@ -55,15 +55,16 @@ public class ManagementResource {
     public Response changeRole(RoleChangeData data) {
         Transaction txn = datastore.newTransaction();
         String targetUsername = data.getTargetUsername();
-        AuthToken managerGivenToken = data.getToken();
+        TokenData managerGivenToken = data.getToken();
         try {
-            Key managerDatastoreTokenKey = tokenKeyFactory.newKey(managerGivenToken.getUsername());
-            if (!TokenResource.isTokenValid(LOG, managerGivenToken, managerDatastoreTokenKey, datastore, txn)) {
+            Key managerDatastoreTokenKey = datastore.newKeyFactory().setKind("Token").newKey(managerGivenToken.getUsername());
+            Entity managerDatastoreToken = txn.get(managerDatastoreTokenKey);
+            if (!TokenResource.isTokenValid(LOG, managerGivenToken, managerDatastoreToken)) {
                 txn.commit();
                 return Response.status(Status.FORBIDDEN).build();
             }
 
-            Key targetKey = userKeyFactory.newKey(targetUsername);
+            Key targetKey = datastore.newKeyFactory().setKind("User").newKey(targetUsername);
             Entity target = txn.get(targetKey);
             if (target == null) {
                 txn.rollback();
@@ -71,7 +72,7 @@ public class ManagementResource {
                 return Response.status(Status.BAD_REQUEST).build();
             }
 
-            Key managerKey = userKeyFactory.newKey(managerGivenToken.getUsername());
+            Key managerKey = datastore.newKeyFactory().setKind("User").newKey(managerGivenToken.getUsername());
             Entity manager = txn.get(managerKey);
             UserType managerType = UserType.toType(manager.getString(RegisterData.TYPE));
             String targetType = target.getString(RegisterData.TYPE);
@@ -125,10 +126,10 @@ public class ManagementResource {
                         .set(RegisterData.NIF, target.getString(RegisterData.NIF))
                         .build();
 
-            txn.add(updatedTarget);
+            txn.put(updatedTarget);
             LOG.info(String.format("User %s updated successfully!", targetUsername));
             txn.commit();
-            return Response.ok("{}").build();
+            return Response.ok(g.toJson(updatedTarget)).build();
 
         } catch (Exception e) {
 			txn.rollback();
@@ -150,15 +151,16 @@ public class ManagementResource {
     public Response changeState(UserData data) {
         Transaction txn = datastore.newTransaction();
         String targetUsername = data.getTargetUsername();
-        AuthToken managerGivenToken = data.getToken();
+        TokenData managerGivenToken = data.getToken();
         try {
-            Key managerDatastoreTokenKey = tokenKeyFactory.newKey(managerGivenToken.getUsername());
-            if (!TokenResource.isTokenValid(LOG, managerGivenToken, managerDatastoreTokenKey, datastore, txn)) {
+            Key managerDatastoreTokenKey = datastore.newKeyFactory().setKind("Token").newKey(managerGivenToken.getUsername());
+            Entity managerDatastoreToken = txn.get(managerDatastoreTokenKey);
+            if (!TokenResource.isTokenValid(LOG, managerGivenToken, managerDatastoreToken)) {
                 txn.commit();
                 return Response.status(Status.FORBIDDEN).build();
             }
 
-            Key targetKey = userKeyFactory.newKey(targetUsername);
+            Key targetKey = datastore.newKeyFactory().setKind("User").newKey(targetUsername);
             Entity target = txn.get(targetKey);
             if (target == null) {
                 txn.rollback();
@@ -166,7 +168,7 @@ public class ManagementResource {
                 return Response.status(Status.BAD_REQUEST).build();
             }
 
-            Key managerKey = userKeyFactory.newKey(managerGivenToken.getUsername());
+            Key managerKey = datastore.newKeyFactory().setKind("User").newKey(managerGivenToken.getUsername());
             Entity manager = txn.get(managerKey);
             UserType managerType = UserType.toType(manager.getString(RegisterData.TYPE));
             String targetType = target.getString(RegisterData.TYPE);
@@ -228,10 +230,10 @@ public class ManagementResource {
                         .set(RegisterData.NIF, target.getString(RegisterData.NIF))
                         .build();
 
-            txn.add(updatedTarget);
+            txn.put(updatedTarget);
             LOG.info(String.format("User %s has been %s!", targetUsername, newState ? "ACTIVATED" : "DEACTIVATED"));
             txn.commit();
-            return Response.ok("{}").build();
+            return Response.ok(g.toJson(updatedTarget)).build();
 
         } catch (Exception e) {
 			txn.rollback();
@@ -248,20 +250,21 @@ public class ManagementResource {
 		}
     }
 
-    @PUT
+    @DELETE
     @Path("/remove/")
-    public Response removeUser(AttributeChangeData data) {
+    public Response removeUser(UserData data) {
         Transaction txn = datastore.newTransaction();
         String targetUsername = data.getTargetUsername();
-        AuthToken managerGivenToken = data.getToken();
+        TokenData managerGivenToken = data.getToken();
         try {
-            Key managerDatastoreTokenKey = tokenKeyFactory.newKey(managerGivenToken.getUsername());
-            if (!TokenResource.isTokenValid(LOG, managerGivenToken, managerDatastoreTokenKey, datastore, txn)) {
+            Key managerDatastoreTokenKey = datastore.newKeyFactory().setKind("Token").newKey(managerGivenToken.getUsername());
+            Entity managerDatastoreToken = txn.get(managerDatastoreTokenKey);
+            if (!TokenResource.isTokenValid(LOG, managerGivenToken, managerDatastoreToken)) {
                 txn.commit();
                 return Response.status(Status.FORBIDDEN).build();
             }
 
-            Key targetKey = userKeyFactory.newKey(targetUsername);
+            Key targetKey = datastore.newKeyFactory().setKind("User").newKey(targetUsername);
             Entity target = txn.get(targetKey);
             if (target == null) {
                 txn.rollback();
@@ -269,7 +272,7 @@ public class ManagementResource {
                 return Response.status(Status.BAD_REQUEST).build();
             }
 
-            Key managerKey = userKeyFactory.newKey(managerGivenToken.getUsername());
+            Key managerKey = datastore.newKeyFactory().setKind("User").newKey(managerGivenToken.getUsername());
             Entity manager = txn.get(managerKey);
             UserType managerType = UserType.toType(manager.getString(RegisterData.TYPE));
             String targetType = target.getString(RegisterData.TYPE);
@@ -338,15 +341,16 @@ public class ManagementResource {
     public Response changeAttributes(AttributeChangeData data) {
         Transaction txn = datastore.newTransaction();
         String targetUsername = data.getTargetUsername();
-        AuthToken managerGivenToken = data.getToken();
+        TokenData managerGivenToken = data.getToken();
         try {
-            Key managerDatastoreTokenKey = tokenKeyFactory.newKey(managerGivenToken.getUsername());
-            if (!TokenResource.isTokenValid(LOG, managerGivenToken, managerDatastoreTokenKey, datastore, txn)) {
+            Key managerDatastoreTokenKey = datastore.newKeyFactory().setKind("Token").newKey(managerGivenToken.getUsername());
+            Entity managerDatastoreToken = txn.get(managerDatastoreTokenKey);
+            if (!TokenResource.isTokenValid(LOG, managerGivenToken, managerDatastoreToken)) {
                 txn.commit();
                 return Response.status(Status.FORBIDDEN).build();
             }
 
-            Key targetKey = userKeyFactory.newKey(targetUsername);
+            Key targetKey = datastore.newKeyFactory().setKind("User").newKey(targetUsername);
             Entity target = txn.get(targetKey);
             if (target == null) {
                 txn.rollback();
@@ -354,7 +358,7 @@ public class ManagementResource {
                 return Response.status(Status.BAD_REQUEST).build();
             }
 
-            Key managerKey = userKeyFactory.newKey(managerGivenToken.getUsername());
+            Key managerKey = datastore.newKeyFactory().setKind("User").newKey(managerGivenToken.getUsername());
             Entity manager = txn.get(managerKey);
             UserType managerType = UserType.toType(manager.getString(RegisterData.TYPE));
             String targetType = target.getString(RegisterData.TYPE);
@@ -417,10 +421,10 @@ public class ManagementResource {
                         .set(RegisterData.NIF, data.getNif().equals("") ? target.getString(RegisterData.NIF) : data.getNif())
                         .build();
 
-            txn.add(updatedTarget);
+            txn.put(updatedTarget);
             LOG.info(String.format("User %s updated successfully!", targetUsername));
             txn.commit();
-            return Response.ok("{}").build();
+            return Response.ok(g.toJson(updatedTarget)).build();
 
         } catch (Exception e) {
 			txn.rollback();
@@ -437,19 +441,26 @@ public class ManagementResource {
 		}
     }
 
-    @GET
+    @POST
     @Path("/list_users/")
-    public Response listUsers(AuthToken managerToken) {
+    public Response listUsersV2(TokenData managerToken) {
+        Key managerDatastoreTokenKey = datastore.newKeyFactory().setKind("Token").newKey(managerToken.getUsername());
+        Entity managerDatastoreToken = datastore.get(managerDatastoreTokenKey);
         Transaction txn = datastore.newTransaction();
         try {
-            Key managerDatastoreTokenKey = tokenKeyFactory.newKey(managerToken.getUsername());
-            if (!TokenResource.isTokenValid(LOG, managerToken, managerDatastoreTokenKey, datastore, txn)) {
+            if (managerDatastoreToken == null) {
+                LOG.warning("Token not found");
+                return Response.status(Status.BAD_REQUEST).build();
+            }
+
+            if (!TokenResource.isTokenValid(LOG, managerToken, managerDatastoreToken)) {
+                txn.delete(managerDatastoreTokenKey);
                 txn.commit();
                 return Response.status(Status.FORBIDDEN).build();
             }
 
-            Key managerKey = userKeyFactory.newKey(managerToken.getUsername());
-            Entity manager = txn.get(managerKey);
+            Key managerKey = datastore.newKeyFactory().setKind("User").newKey(managerToken.getUsername());
+            Entity manager = datastore.get(managerKey);
             UserType managerType = UserType.toType(manager.getString(RegisterData.TYPE));
             Query<Entity> query;
             QueryResults<Entity> users;
@@ -459,6 +470,10 @@ public class ManagementResource {
                     query = Query.newEntityQueryBuilder()
                         .setKind("User")
                         .build();
+                    users = datastore.run(query);
+                    users.forEachRemaining( user -> {
+                        resultList.add(getCompleteQueryResultData(user));
+                    });
 
                     break;
                 case GS:
@@ -468,7 +483,7 @@ public class ManagementResource {
                             PropertyFilter.eq(RegisterData.TYPE, UserType.GBO.type)
                         )
                         .build();
-                    users = txn.run(query);
+                    users = datastore.run(query);
                     users.forEachRemaining( user -> {
                         resultList.add(getCompleteQueryResultData(user));
                     });
@@ -479,14 +494,13 @@ public class ManagementResource {
                             PropertyFilter.eq(RegisterData.TYPE, UserType.USER.type)
                         )
                         .build();
-                    users = txn.run(query);
+                    users = datastore.run(query);
                     users.forEachRemaining( user -> {
                         resultList.add(getCompleteQueryResultData(user));
                     });
 
                     break;
                 case GA:
-                    txn.rollback();
                     LOG.warning("Behaviour for GA not defined.");
                     return Response.status(Status.NOT_IMPLEMENTED).build();
                 case GBO:
@@ -496,23 +510,39 @@ public class ManagementResource {
                             PropertyFilter.eq(RegisterData.TYPE, UserType.USER.type)
                         )
                         .build();
-                    users = txn.run(query);
+                    users = datastore.run(query);
                     users.forEachRemaining( user -> {
                         resultList.add(getCompleteQueryResultData(user));
                     });
                 case USER:
+                    List<BaseQueryResultData> resultListUSER = new ArrayList<>();
                     query = Query.newEntityQueryBuilder()
                         .setKind("User")
+                        .setFilter(
+                            CompositeFilter.and(
+                                PropertyFilter.eq(RegisterData.TYPE, UserType.USER.type),
+                                PropertyFilter.eq(RegisterData.STATE, true)
+                            )
+                            )
                         .build();
-                    break;
+                    users = datastore.run(query);
+                    users.forEachRemaining( user -> {
+                        resultListUSER.add(new BaseQueryResultData(user.getString(RegisterData.USERNAME),
+                                                                    user.getString(RegisterData.NAME),
+                                                                    user.getString(RegisterData.EMAIL)));
+                    });
+                    txn.commit();
+                    LOG.info("Listing successful!");
+                    return Response.ok(g.toJson(resultListUSER)).build();
+
                 default:
-                    throw new Exception("Could not resolve manager type.");
+                    txn.rollback();
+                    LOG.severe("Could not resolve manager type.");
+                    return Response.status(Status.INTERNAL_SERVER_ERROR).build();
             }
 
             LOG.info("Listing successful!");
-            txn.commit();
             return Response.ok(g.toJson(resultList)).build();
-
         } catch (Exception e) {
 			txn.rollback();
 			LOG.severe(e.getMessage());
@@ -531,8 +561,8 @@ public class ManagementResource {
     private CompleteQueryResultData getCompleteQueryResultData(Entity user) {
         return new CompleteQueryResultData(user.getString(RegisterData.USERNAME),
                                         user.getString(RegisterData.NAME),
-                                        user.getString(RegisterData.PASSWORD),
                                         user.getString(RegisterData.EMAIL),
+                                        user.getString(RegisterData.PASSWORD),
                                         user.getTimestamp(RegisterData.CREATION_TIME),
                                         user.getString(RegisterData.TYPE),
                                         user.getBoolean(RegisterData.STATE),

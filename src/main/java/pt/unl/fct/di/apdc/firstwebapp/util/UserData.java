@@ -9,7 +9,7 @@ public class UserData extends AbstractChangeData {
     }
 
     
-    public UserData(AuthToken token, String targetUsername) {
+    public UserData(TokenData token, String targetUsername) {
         super(token);
         this.targetUsername = targetUsername;
     }

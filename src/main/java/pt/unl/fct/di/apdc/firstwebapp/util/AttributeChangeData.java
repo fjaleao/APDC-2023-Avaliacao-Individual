@@ -18,7 +18,7 @@ public class AttributeChangeData extends UserData {
         
     }
 
-    public AttributeChangeData(AuthToken token, String targetUsername, String name, String email, boolean visible, String mobilePhoneNumber,
+    public AttributeChangeData(TokenData token, String targetUsername, String name, String email, boolean visible, String mobilePhoneNumber,
             String phoneNumber, String occupation, String workAddress, String address, String secondAddress,
             String postCode, String nif) {
         super(token, targetUsername);

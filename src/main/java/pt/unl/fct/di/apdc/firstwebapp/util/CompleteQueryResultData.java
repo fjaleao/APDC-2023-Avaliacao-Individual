@@ -2,21 +2,24 @@ package pt.unl.fct.di.apdc.firstwebapp.util;
 
 import com.google.cloud.Timestamp;
 
-public class CompleteQueryResultData extends BaseQueryResultData {
+public class CompleteQueryResultData {
 
-    public String password;
-    public Timestamp creationTime;
-    public String type;
-    public boolean state;
-	public boolean visible;
-	public String mobilePhoneNumber;
-	public String phoneNumber;
-	public String occupation;
-	public String workAddress;
-	public String address;
-	public String secondAddress;
-	public String postCode;
-	public String nif;
+    private String username;
+    private String name;
+    private String email;
+    private String password;
+    private Timestamp creationTime;
+    private String type;
+    private boolean state;
+	private boolean visible;
+	private String mobilePhoneNumber;
+	private String phoneNumber;
+	private String occupation;
+	private String workAddress;
+	private String address;
+	private String secondAddress;
+	private String postCode;
+	private String nif;
 
     public CompleteQueryResultData() {
 
@@ -25,7 +28,9 @@ public class CompleteQueryResultData extends BaseQueryResultData {
     public CompleteQueryResultData(String username, String name, String email, String password, Timestamp creationTime,
             String type, boolean state, boolean visible, String mobilePhoneNumber, String phoneNumber,
             String occupation, String workAddress, String address, String secondAddress, String postCode, String nif) {
-        super(username, name, email);
+        this.username = username;
+        this.name = name;
+        this.email = email;
         this.password = password;
         this.creationTime = creationTime;
         this.type = type;
@@ -39,6 +44,27 @@ public class CompleteQueryResultData extends BaseQueryResultData {
         this.secondAddress = secondAddress;
         this.postCode = postCode;
         this.nif = nif;
+    }
+
+    /**
+     * @return the username
+     */
+    public String getUsername() {
+        return username;
+    }
+
+    /**
+     * @return the name
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * @return the email
+     */
+    public String getEmail() {
+        return email;
     }
 
     /**

@@ -16,8 +16,8 @@ public class AuthToken {
 	
 	private String username;
 	private String tokenID;
-	private Timestamp creationDate;
-	private Timestamp expirationDate;
+	private long creationDate;
+	private long expirationDate;
 	private String verification;
 	
 	public AuthToken() {
@@ -28,18 +28,10 @@ public class AuthToken {
 		
 		this.username = username;
 		this.tokenID = UUID.randomUUID().toString();
-		this.creationDate = Timestamp.now();
-		this.expirationDate = Timestamp.ofTimeSecondsAndNanos(this.creationDate.getSeconds() + TTL, this.creationDate.getNanos());
+		this.creationDate = Timestamp.now().getSeconds();
+		this.expirationDate = this.creationDate + TTL;
 		this.verification = verification;
 		
-	}
-
-	public boolean isExpired() {
-		return this.expirationDate.compareTo(Timestamp.now()) < 0;
-	}
-
-	public void invalidate(long expirationData) {
-		this.expirationDate = Timestamp.now();
 	}
 
 	public String getUsername() {
@@ -53,14 +45,14 @@ public class AuthToken {
 	/**
 	 * @return the creationDate
 	 */
-	public Timestamp getCreationDate() {
+	public long getCreationDate() {
 		return creationDate;
 	}
 
 	/**
 	 * @return the expirationDate
 	 */
-	public Timestamp getExpirationDate() {
+	public long getExpirationDate() {
 		return expirationDate;
 	}
 

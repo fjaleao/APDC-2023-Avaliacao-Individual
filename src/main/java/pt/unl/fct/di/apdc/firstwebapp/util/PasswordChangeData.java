@@ -9,7 +9,7 @@ public class PasswordChangeData extends AbstractChangeData {
     }
 
     
-    public PasswordChangeData(String newPassword, AuthToken token) {
+    public PasswordChangeData(String newPassword, TokenData token) {
         super(token);
         this.newPassword = newPassword;
     }

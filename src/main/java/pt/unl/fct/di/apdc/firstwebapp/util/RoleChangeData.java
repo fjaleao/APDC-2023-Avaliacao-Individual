@@ -8,7 +8,7 @@ public class RoleChangeData extends UserData{
 
     }
 
-    public RoleChangeData(AuthToken token, String targetUsername, String newRole) {
+    public RoleChangeData(TokenData token, String targetUsername, String newRole) {
         super(token, targetUsername);
         this.newRole = newRole;
     }

@@ -48,6 +48,7 @@ public class RegisterData {
 		this.name = name;
 		this.email = email;
 		this.password = password;
+		
 		this.visible = visible;
 		this.mobilePhoneNumber = mobilePhoneNumber;
 		this.phoneNumber = phoneNumber;

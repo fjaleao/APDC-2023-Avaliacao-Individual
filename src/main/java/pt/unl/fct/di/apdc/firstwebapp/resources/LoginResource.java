@@ -4,7 +4,7 @@ import java.util.Random;
 import java.util.logging.Logger;
 
 import javax.ws.rs.Consumes;
-import javax.ws.rs.PUT;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
@@ -17,7 +17,6 @@ import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
 import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.Key;
-import com.google.cloud.datastore.KeyFactory;
 import com.google.cloud.datastore.Transaction;
 import com.google.gson.Gson;
 
@@ -37,17 +36,16 @@ public class LoginResource {
 	private final Gson g = new Gson();
 
 	private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
-	private final KeyFactory userKeyFactory = datastore.newKeyFactory().setKind("User");
 	
 	public LoginResource() {}
 
-	@PUT
+	@POST
 	@Path("/")
 	public Response loginUserV3(LoginData data) {
 		
 		LOG.fine("Attempt to login user: " + data.getUsername());
 
-		Key userKey = userKeyFactory.newKey(data.getUsername());
+		Key userKey = datastore.newKeyFactory().setKind("User").newKey(data.getUsername());
 
 		Transaction txn = datastore.newTransaction();
 		try {
@@ -72,9 +70,9 @@ public class LoginResource {
 								.set(AuthToken.VERIFICATION, DigestUtils.sha512Hex(tokenVerification))
 								.build();
 
-					txn.add(tkn);
-					LOG.info("User'" + data.getUsername() + "' logged in successfully.");
+					txn.put(tkn);
 					txn.commit();
+					LOG.info("User'" + data.getUsername() + "' logged in successfully.");
 					return Response.ok(g.toJson(token)).build();
 
 				} else {

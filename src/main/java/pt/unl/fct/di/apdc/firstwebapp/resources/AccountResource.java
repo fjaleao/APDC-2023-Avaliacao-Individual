@@ -3,7 +3,7 @@ package pt.unl.fct.di.apdc.firstwebapp.resources;
 import java.util.logging.Logger;
 
 import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -17,13 +17,11 @@ import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
 import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.Key;
-import com.google.cloud.datastore.KeyFactory;
 import com.google.cloud.datastore.Transaction;
-import com.google.gson.Gson;
 
-import pt.unl.fct.di.apdc.firstwebapp.util.AuthToken;
 import pt.unl.fct.di.apdc.firstwebapp.util.PasswordChangeData;
 import pt.unl.fct.di.apdc.firstwebapp.util.RegisterData;
+import pt.unl.fct.di.apdc.firstwebapp.util.TokenData;
 
 @Path("/account")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -34,23 +32,21 @@ public class AccountResource {
 	 * Logger
 	 */
 	private static final Logger LOG = Logger.getLogger(LoginResource.class.getName());
-	
-	private final Gson g = new Gson();
 
 	private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
-    private final KeyFactory userKeyFactory = datastore.newKeyFactory().setKind("User");
-    private final KeyFactory tokenKeyFactory = datastore.newKeyFactory().setKind("Token");
+    // private final KeyFactory userKeyFactory = datastore.newKeyFactory().setKind("User");
+    // private final KeyFactory tokenKeyFactory = datastore.newKeyFactory().setKind("Token");
 	
 	public AccountResource() {}
 
 	// TODO logout, showToken, changePassword
 
-	@PUT
+	@DELETE
 	@Path("/logout/")
-	public Response logOut(AuthToken token) {
+	public Response logOut(TokenData token) {
 		Transaction txn = datastore.newTransaction();
 		try {
-            Key datastoreTokenKey = tokenKeyFactory.newKey(token.getUsername());
+            Key datastoreTokenKey = datastore.newKeyFactory().setKind("Token").newKey(token.getUsername());
 			Entity datastoreToken = txn.get(datastoreTokenKey);
 			if (datastoreToken == null) {
 				txn.rollback();
@@ -76,13 +72,14 @@ public class AccountResource {
 		}
 	}
 
-	@GET
+	@PUT
 	@Path("/token/")
-	public Response showToken(AuthToken token) {
+	public Response showToken(TokenData token) {
 		Transaction txn = datastore.newTransaction();
 		try {
-            Key datastoreTokenKey = tokenKeyFactory.newKey(token.getUsername());
-            if (!TokenResource.isTokenValid(LOG, token, datastoreTokenKey, datastore, txn)) {
+            Key datastoreTokenKey = datastore.newKeyFactory().setKind("Token").newKey(token.getUsername());
+			Entity datastoreToken = txn.get(datastoreTokenKey);
+            if (!TokenResource.isTokenValid(LOG, token, datastoreToken)) {
                 txn.commit();
                 return Response.status(Status.FORBIDDEN).build();
             }
@@ -110,15 +107,16 @@ public class AccountResource {
 	public Response changePassword(PasswordChangeData data) {
         Transaction txn = datastore.newTransaction();
         String username = data.getToken().getUsername();
-        AuthToken token = data.getToken();
+        TokenData token = data.getToken();
         try {
-            Key datastoreTokenKey = tokenKeyFactory.newKey(token.getUsername());
-            if (!TokenResource.isTokenValid(LOG, token, datastoreTokenKey, datastore, txn)) {
+            Key datastoreTokenKey = datastore.newKeyFactory().setKind("Token").newKey(token.getUsername());
+			Entity datastoreToken = txn.get(datastoreTokenKey);
+            if (!TokenResource.isTokenValid(LOG, token, datastoreToken)) {
                 txn.commit();
                 return Response.status(Status.FORBIDDEN).build();
             }
 
-			Key userKey = userKeyFactory.newKey(username);
+			Key userKey = datastore.newKeyFactory().setKind("User").newKey(username);
             Entity user = txn.get(userKey);
 
             Entity updatedUser = Entity.newBuilder(userKey)
@@ -129,9 +127,18 @@ public class AccountResource {
                         .set(RegisterData.CREATION_TIME, user.getString(RegisterData.NAME))
                         .set(RegisterData.TYPE, user.getString(RegisterData.TYPE))
                         .set(RegisterData.STATE, user.getBoolean(RegisterData.STATE))
+                        .set(RegisterData.VISIBILITY, user.getBoolean(RegisterData.VISIBILITY))
+                        .set(RegisterData.MOBILE, user.getString(RegisterData.MOBILE))
+                        .set(RegisterData.PHONE, user.getString(RegisterData.PHONE))
+                        .set(RegisterData.OCCUPATION, user.getString(RegisterData.OCCUPATION))
+                        .set(RegisterData.WORK_ADDRESS, user.getString(RegisterData.WORK_ADDRESS))
+                        .set(RegisterData.ADDRESS, user.getString(RegisterData.ADDRESS))
+                        .set(RegisterData.SECOND_ADDRESS, user.getString(RegisterData.SECOND_ADDRESS))
+                        .set(RegisterData.POST_CODE, user.getString(RegisterData.POST_CODE))
+                        .set(RegisterData.NIF, user.getString(RegisterData.NIF))
                         .build();
 
-            txn.add(updatedUser);
+            txn.put(updatedUser);
             LOG.info("Password changed successfully!");
             txn.commit();
             return Response.ok("{}").build();

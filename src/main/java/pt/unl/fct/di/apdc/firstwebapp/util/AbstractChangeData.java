@@ -2,7 +2,7 @@ package pt.unl.fct.di.apdc.firstwebapp.util;
 
 public abstract class AbstractChangeData {
     
-    private AuthToken token;
+    private TokenData token;
 
     public AbstractChangeData() {
 
@@ -11,14 +11,14 @@ public abstract class AbstractChangeData {
     /**
      * @param token
      */
-    public AbstractChangeData(AuthToken token) {
+    public AbstractChangeData(TokenData token) {
         this.token = token;
     }
 
     /**
      * @return the token
      */
-    public AuthToken getToken() {
+    public TokenData getToken() {
         return token;
     }
 
