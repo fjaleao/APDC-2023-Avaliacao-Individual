@@ -4,7 +4,7 @@ public class RegisterData {
 
 	public static final String USERNAME = "user_id";
 	public static final String NAME = "user_name";
-	public static final String PASSWORD = "user_pwd";
+	public static final String PASSWORD = "user_password";
 	public static final String EMAIL = "user_email";
 	public static final String CREATION_TIME = "user_creation_time";
 	public static final String TYPE = "user_type";

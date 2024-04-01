@@ -31,7 +31,7 @@ public class AccountResource {
 	/**
 	 * Logger
 	 */
-	private static final Logger LOG = Logger.getLogger(LoginResource.class.getName());
+	private static final Logger LOG = Logger.getLogger(AccountResource.class.getName());
 
 	private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
     // private final KeyFactory userKeyFactory = datastore.newKeyFactory().setKind("User");
@@ -124,7 +124,7 @@ public class AccountResource {
                         .set(RegisterData.NAME, user.getString(RegisterData.NAME))
                         .set(RegisterData.EMAIL, user.getString(RegisterData.EMAIL))
                         .set(RegisterData.PASSWORD, DigestUtils.sha512Hex(data.getNewPassword()))
-                        .set(RegisterData.CREATION_TIME, user.getString(RegisterData.NAME))
+                        .set(RegisterData.CREATION_TIME, user.getTimestamp(RegisterData.CREATION_TIME))
                         .set(RegisterData.TYPE, user.getString(RegisterData.TYPE))
                         .set(RegisterData.STATE, user.getBoolean(RegisterData.STATE))
                         .set(RegisterData.VISIBILITY, user.getBoolean(RegisterData.VISIBILITY))

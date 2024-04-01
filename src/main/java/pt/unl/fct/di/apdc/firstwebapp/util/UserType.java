@@ -1,9 +1,9 @@
 package pt.unl.fct.di.apdc.firstwebapp.util;
 
 /**
- * @author f.leao
+ * Define o privilégio para autorização de execução de operações na aplicação
  * 
- * define o privilégio para autorização de execução de operações na aplicação
+ * @author fjaleao
  */
 public enum UserType {
 

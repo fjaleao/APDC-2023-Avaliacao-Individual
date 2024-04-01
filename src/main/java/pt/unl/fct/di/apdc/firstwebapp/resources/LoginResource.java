@@ -41,7 +41,7 @@ public class LoginResource {
 
 	@POST
 	@Path("/")
-	public Response loginUserV3(LoginData data) {
+	public Response loginUser(LoginData data) {
 		
 		LOG.fine("Attempt to login user: " + data.getUsername());
 
@@ -56,7 +56,7 @@ public class LoginResource {
 					LOG.warning("User must be activated to log-in.");
 					return Response.status(Status.BAD_REQUEST).build();
 				}
-				String hashedPwd = user.getString("user_pwd");
+				String hashedPwd = user.getString(RegisterData.PASSWORD);
 				if (hashedPwd.equals(DigestUtils.sha512Hex(data.getPassword()))) {
 					String tokenVerification = Long.toString(new Random().nextLong());
 					AuthToken token = new AuthToken(data.getUsername(), tokenVerification);
